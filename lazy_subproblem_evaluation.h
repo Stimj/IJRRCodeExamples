@@ -1,3 +1,5 @@
+///  Forward declarations -- these methods/classes would be implemented in a different file ///
+
 // @class Subproblem a subproblem type that is hashable
 class Subproblem;
 
@@ -6,6 +8,10 @@ class MTSOProblem;
 
 // @class SubproblemSolution a solution for a subproblem of the MTSO
 class SubproblemSolution;
+
+// @brief Partitions the MTSO problem into subproblems
+template <class Matroid>
+std::vector<Subproblem> partition(const MTSOProblem& problem, const std::vector<SubproblemSolution>& partial_solution);
 
 // @struct An upper bound struct which default initializes to max
 struct UpperBound
@@ -30,25 +36,27 @@ operator<(const BoundedSubproblem& L, const BoundedSubproblem& R)
  * are 'dominated', meaning we know that they cannot contain the optimal solution for this round of the
  * greedy selection
  *
- * @param problem       The immutable MTSO problem to solve
- * @param upper_bounds  A mutable map of upper bounds for subproblems
+ * @brief problem           The MTSO instance to solv
+ * @brief current_solution  The partial solution calculated so far. May be empty
+ * @brief upper_bounds      Previously computed upper bounds on the subproblems
  */
-SubproblemSolution LazySolveSubproblem(const MTSOProblem& problem, std::unordered_map<Subproblem, UpperBound>& upper_bounds)
+SubproblemSolution LazySolveSubproblem(const MTSOProblem& problem,
+                                       const std::vector<SubproblemSolution>& current_solution,
+                                       std::unordered_map<Subproblem, UpperBound>& upper_bounds)
 {
   std::queue<BoundedSubproblem> Q;
 
   // Initialize the queue
-  for(const Subproblem& subproblem : problem.partition())
-    Q.push(BoundedSubproblem{.subproblem=subproblem, .upper_bound=upper_bounds[subproblem]});
-
+  for (const Subproblem& subproblem : Partition(state.problem, state.current_solutions))
+    Q.push(BoundedSubproblem{.subproblem = subproblem, .upper_bound = upper_bounds[subproblem]});
 
   SubproblemSolution best_solution;
 
-  while(!Q.empty())
+  while (!Q.empty())
   {
     // If the best element left in the queue is guaranteed to be worse than the best solution we've found so far,
     // then we're done with this iteration of the greedy selection and do not need to evaluate any further subproblems
-    if(Q.front().upper_bound < best_solution.objective_value)
+    if (Q.front().upper_bound < best_solution.objective_value)
     {
       break;
     }
@@ -58,7 +66,7 @@ SubproblemSolution LazySolveSubproblem(const MTSOProblem& problem, std::unordere
       SubproblemSolution new_solution = SolveSubproblem(Q.front().subproblem);
 
       // If this solution is the best yet, track it for later
-      if(new_solution > best_solution)
+      if (new_solution > best_solution)
         best_solution = new_solution;
 
       // Update the upper bound for this subproblem for future iterations
