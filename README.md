@@ -11,6 +11,16 @@ This repository is a companion to the paper "The Matroid Team Surviving Orientee
 `lazy_subproblem_evaluation.h` provides a concrete implementation of lazy subproblem evaluation as described in Section 6.2
 
 ## Partitioning Routines
+Concrete implementations of various partitioning routines are given under the paritioning_routines directory:
+```
+├── partitioning_routines
+│   ├── binary_matroids.h
+│   ├── gammoid.h
+│   ├── partitioning_routines.h
+│   ├── transversal_matroids.h
+│   ├── truncation.h
+│   └── uniform_matroids.h
+```
 
-`partitioning_routines` provides concrete implementations of various partitioning routines presented in Sections 4 and 5.1.3.  Different classes of matroids are organized into the same file to limit the size of the file.
+These routines are described in the paper under Sections 4 and 5.1.3.  Different classes of matroids are organized into the same file to limit the size of the file.
 
